@@ -4,11 +4,12 @@ import { SafeAreaView, StyleSheet, View } from 'react-native';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import { Coordinate, Direction, GestureEventType } from '../types/types';
 import Snake from './Snake';
+import { checkGameOver } from '../utils/checkGameOver';
 
 
 const SNAKE_INITIAL_POSITION =[{x:5, y:5}];
 const FOOD_INITIAL_POSITION = {x:5, y:20};
-const GAME_BOUNDS = {xMin: 0, xMax:35, yMin:0, yMax: 63};
+const GAME_BOUNDS = {xMin: 0, xMax:40, yMin:0, yMax: 91};
 const MOVE_INTERNAL = 50;
 const SCORE_INCREMENT=10;
 
@@ -16,10 +17,49 @@ export default function Game():JSX.Element{
     const [direction, setDirection] = React.useState<Direction>(Direction.Right);
     const [snake, setSnake] = React.useState<Coordinate[]>(SNAKE_INITIAL_POSITION);
     const [food, setFood] = React.useState<Coordinate>(FOOD_INITIAL_POSITION);
-    const [isGameOver, setGameOver] = React.useState<Boolean>(false);
-    const [isPause, setGamePaused] = React.useState<boolean>(false);
+    const [isGameOver, setIsGameOver] = React.useState<Boolean>(false);
+    const [isPaused, setGamePaused] = React.useState<boolean>(false);
     
-    
+    React.useEffect(() => {
+        if (!isGameOver){
+            const intervalId = setInterval(()=> {
+                !isPaused && moveSnake();
+            }, MOVE_INTERNAL)
+            return () => clearInterval(intervalId);
+        }
+    }, [snake, isGameOver, isPaused]);
+    const moveSnake =() => {
+        const snakeHead = snake[0];
+        const newHead = {...snakeHead} //creating a copy
+
+
+        if (checkGameOver(snakeHead, GAME_BOUNDS)){
+            setIsGameOver((prev) => !prev);
+            return;
+        }
+
+        switch(direction){
+            case Direction.Up:
+                newHead.y -=1;
+                break;
+            case Direction.Down:
+                newHead.y +=1;
+                break;
+            case Direction.Left:
+                newHead.x -=1;
+                break;
+            case Direction.Right:
+                newHead.x +=1;
+                break;
+            default:
+                break;
+
+        }
+        //if eats food 
+        //grow snake 
+
+        setSnake([newHead, ...snake.slice(0, -1)]);
+    };
 
     const handleGesture = (event: GestureEventType) => {
         const {translationX, translationY} = event.nativeEvent;
