@@ -9,8 +9,23 @@ export default function Game():JSX.Element{
     const handleGesture = (event: any) => {
         const {translationX, translationY} = event.nativeEvent;
 
-        console.log(translationX, translationY);
-    }
+        if (Math.abs(translationX) > Math.abs(translationY)){
+            if (translationX > 0){
+                console.log("Moving right")
+
+            }else {
+                console.log("Moving left")
+            }
+        } else {
+            if (translationY > 0 ){
+                //down
+                console.log("Moving down")
+            } else{
+                //up
+                console.log("Moving up")
+            }
+        }
+    };
     return (
     <PanGestureHandler onGestureEvent={handleGesture}>
     <SafeAreaView style={styles.container}></SafeAreaView>
